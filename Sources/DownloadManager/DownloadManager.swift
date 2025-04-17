@@ -1,10 +1,6 @@
 import Foundation
 
-enum DownloadStatus {
-    case progress(Double)
-    case completed(Data)
-    case failed(Error)
-}
+
 
 protocol DownloadManager: Sendable {
     func startDownload(from url: URL) async
