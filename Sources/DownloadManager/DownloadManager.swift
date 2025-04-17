@@ -1,7 +1,5 @@
 import Foundation
 
-
-
 protocol DownloadManager: Sendable {
     func startDownload(from url: URL) async
     func cancelDownload(for url: URL) async
