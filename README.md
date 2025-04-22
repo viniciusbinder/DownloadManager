@@ -8,4 +8,4 @@ DownloadManager was designed as an `actor` to safely manage multiple file downlo
 
 Use cases for this range from a browser-like download screen to a media app that downloads content on demand.
 
-Implementation details worth mentioning is the **Protocol-Oriented Design** and the use of `AsyncStream` to send out progress updates.
+Implementation details worth mentioning is the **Protocol-Oriented Design**, **Test-Drive Development** and the use of `AsyncStream` to send out progress updates.
