@@ -37,6 +37,8 @@ struct DownloadManagerTests {
                 throw error(status)
             }
         }
+        
+        #expect(await manager.stream(for: url) == nil)
     }
     
     @Test
@@ -65,6 +67,10 @@ struct DownloadManagerTests {
             }
             
             for try await _ in group {}
+        }
+        
+        for url in testURLs {
+            #expect(await manager.stream(for: url) == nil)
         }
     }
     

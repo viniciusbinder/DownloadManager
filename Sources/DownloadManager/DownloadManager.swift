@@ -71,7 +71,9 @@ public actor DefaultDownloadManager: DownloadManager {
     }
     
     public func stream(for url: URL) async -> AsyncStream<DownloadStatus>? {
-        AsyncStream { continuation in
+        guard tasks[url] != nil else { return nil }
+        
+        return AsyncStream { continuation in
             continuations[url, default: []].append(continuation)
             
             if let current = latestStatus[url] {
