@@ -29,6 +29,8 @@ struct DownloadManagerTests {
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
             switch status {
+            case .requested:
+                break
             case .progress(let progress):
                 #expect(progress >= 0 && progress <= 1)
             case .success(let data):
@@ -55,6 +57,8 @@ struct DownloadManagerTests {
                     let stream = try #require(await manager.stream(for: url))
                     for await status in stream {
                         switch status {
+                        case .requested:
+                            break
                         case .progress(let progress):
                             #expect(progress >= 0 && progress <= 1)
                         case .success(let data):
@@ -89,9 +93,7 @@ struct DownloadManagerTests {
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
             switch status {
-            case .progress(let progress):
-                #expect(progress >= 0 && progress <= 1)
-            case .canceled:
+            case .requested, .progress, .canceled:
                 break
             default:
                 throw error(status)
@@ -108,9 +110,7 @@ struct DownloadManagerTests {
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
             switch status {
-            case .progress(let progress):
-                #expect(progress >= 0 && progress <= 1)
-            case .failed:
+            case .requested, .progress, .failed:
                 break
             default:
                 throw error(status)
@@ -134,6 +134,8 @@ struct DownloadManagerTests {
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
             switch status {
+            case .requested:
+                break
             case .progress(let progress):
                 #expect(progress >= 0 && progress <= 1)
                 #expect(progress >= lastProgress)

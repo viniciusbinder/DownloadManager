@@ -55,7 +55,7 @@ public actor DefaultDownloadManager: DownloadManager {
         downloadTask.resume()
         
         tasks[url] = downloadTask
-        latestStatus[url] = .progress(0.0)
+        latestStatus[url] = .requested
         
         session.finishTasksAndInvalidate()
     }

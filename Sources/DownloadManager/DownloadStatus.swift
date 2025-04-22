@@ -8,6 +8,7 @@
 import Foundation
 
 public enum DownloadStatus: Sendable {
+    case requested
     case progress(Double)
     case success(Data)
     case failed(Error?)
