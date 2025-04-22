@@ -23,3 +23,22 @@ public enum DownloadStatus: Sendable {
         }
     }
 }
+
+extension DownloadStatus: Equatable {
+    public static func == (lhs: DownloadStatus, rhs: DownloadStatus) -> Bool {
+        switch (lhs, rhs) {
+        case (.requested, .requested):
+            true
+        case (.progress(let lhsProgress), .progress(let rhsProgress)):
+            lhsProgress == rhsProgress
+        case (.success, .success):
+            true
+        case (.failed(let lhsError), .failed(let rhsError)):
+            lhsError?.localizedDescription == rhsError?.localizedDescription
+        case (.canceled, .canceled):
+            true
+        default:
+            false
+        }
+    }
+}

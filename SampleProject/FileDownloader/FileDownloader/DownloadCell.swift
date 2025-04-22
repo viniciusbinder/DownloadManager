@@ -21,8 +21,8 @@ struct DownloadCell: View {
                     .transition(.scale)
                     .padding(.horizontal)
             }
+
             error
-                .offset(y: 8)
         }
         .padding(.vertical)
     }
@@ -80,6 +80,7 @@ struct DownloadCell: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.red)
                 }
+                .offset(y: 8)
         }
     }
 }

@@ -11,7 +11,9 @@ import SwiftUI
 @Observable
 @MainActor
 final class DownloadsViewModel {
-    private(set) var downloads: [Download] = []
+    var downloads: [Download] = []
+    var presentedDownload: Download?
+
     private let manager: DownloadManager
 
     init(urls: [URL], manager: DownloadManager = .default) {
@@ -26,6 +28,14 @@ final class DownloadsViewModel {
         }
     }
 
+    func startAllDownloads() {
+        for download in downloads {
+            if case .success = download.status {} else {
+                start(download: download)
+            }
+        }
+    }
+
     func cancel(download: Download) {
         Task {
             await manager.cancelDownload(for: download.url)
@@ -37,6 +47,10 @@ final class DownloadsViewModel {
             await manager.cancelDownload(for: download.url)
             downloads.removeAll { $0.id == download.id }
         }
+    }
+
+    func present(download: Download) {
+        presentedDownload = download
     }
 
     private func watch(download: Download) async {

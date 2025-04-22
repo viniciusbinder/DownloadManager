@@ -49,7 +49,7 @@ public actor DefaultDownloadManager: DownloadManager {
                 }
             }
         }
-                
+        
         let session = URLSession(configuration: .default, delegate: handler, delegateQueue: delegateQueue)
         let downloadTask = session.downloadTask(with: url)
         downloadTask.resume()
