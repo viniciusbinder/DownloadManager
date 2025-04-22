@@ -7,34 +7,17 @@
 
 import Foundation
 
-enum DownloadStatus {
+public enum DownloadStatus: Sendable {
     case progress(Double)
     case success(Data)
-    case failed(URLError)
-}
+    case failed(Error?)
+    case canceled
 
-extension DownloadStatus {
-    var didSucceed: Bool {
-        if case .success = self { true } else { false }
-    }
-
-    var didFail: Bool {
-        if case .failed = self { true } else { false }
-    }
-
-    var didCancel: Bool {
-        if case .failed(let error) = self, error.code == .cancelled {
-            true
-        } else {
-            false
-        }
-    }
-
-    var didEnd: Bool {
+    var isFinished: Bool {
         switch self {
-        case .success, .failed:
+        case .success, .failed, .canceled:
             true
-        case .progress:
+        default:
             false
         }
     }

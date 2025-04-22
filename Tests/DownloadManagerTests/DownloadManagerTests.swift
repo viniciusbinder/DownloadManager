@@ -5,12 +5,20 @@ import Testing
 
 struct DownloadManagerTests {
     private let testURLs: [URL] = [
-        URL(string: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf")!,
-        URL(string: "https://file-examples.com/wp-content/uploads/2017/02/file_example_XLS_10.xls")!,
-        URL(string: "https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf")!
+        URL(string: "https://link.testfile.org/15MB")!,
+        URL(string: "https://link.testfile.org/30MB")!,
+        URL(string: "https://link.testfile.org/70MB")!
     ]
-    private let largeFileURL = URL(string: "https://speed.hetzner.de/100MB.bin")!
-    private let nonExistentFileURL = URL(string: "https://nonexistent.fail/broken.pdf")!
+    private let largeFileURL = URL(string: "https://link.testfile.org/500MB")!
+    private let fakeFileURL = URL(string: "https://nonexistent.fail/broken.pdf")!
+    
+    func error(_ status: DownloadStatus) -> Error {
+        NSError(
+            domain: "DownloadError",
+            code: -1,
+            userInfo: [NSLocalizedDescriptionKey: "Unexpected download status: \(status)"]
+        )
+    }
     
     @Test
     func singleDownload() async throws {
@@ -20,12 +28,13 @@ struct DownloadManagerTests {
         
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
-            if case .success(let data) = status {
+            switch status {
+            case .progress(let progress):
+                #expect(progress >= 0 && progress <= 1)
+            case .success(let data):
                 #expect(!data.isEmpty)
-                break
-            } else if case .failed(let error) = status {
-                #expect(Bool(false), "Download failed: \(error)")
-                break
+            default:
+                throw error(status)
             }
         }
     }
@@ -34,44 +43,29 @@ struct DownloadManagerTests {
     func concurrentDownloads() async throws {
         let manager: DownloadManager = .default
         
-        await withTaskGroup { group in
+        for url in testURLs {
+            await manager.startDownload(from: url)
+        }
+    
+        try await withThrowingTaskGroup(of: Void.self) { group in
             for url in testURLs {
                 group.addTask {
-                    await manager.startDownload(from: url)
+                    let stream = try #require(await manager.stream(for: url))
+                    for await status in stream {
+                        switch status {
+                        case .progress(let progress):
+                            #expect(progress >= 0 && progress <= 1)
+                        case .success(let data):
+                            #expect(!data.isEmpty)
+                        default:
+                            throw error(status)
+                        }
+                    }
                 }
             }
+            
+            for try await _ in group {}
         }
-    
-        for url in testURLs {
-            let stream = try #require(await manager.stream(for: url))
-            for await status in stream {
-                if case .success(let data) = status {
-                    #expect(!data.isEmpty)
-                    break
-                } else if case .failed(let error) = status {
-                    #expect(Bool(false), "Download failed: \(error)")
-                    break
-                }
-            }
-        }
-    }
-    
-    @Test
-    func progressUpdates() async throws {
-        let manager: DownloadManager = .default
-        let url = try #require(testURLs.first)
-        await manager.startDownload(from: url)
-        
-        var updates: [DownloadStatus] = []
-        let stream = try #require(await manager.stream(for: url))
-        for await status in stream {
-            updates.append(status)
-            if status.didEnd {
-                break
-            }
-        }
-        
-        #expect(updates.last?.didSucceed ?? false)
     }
     
     @Test
@@ -88,12 +82,13 @@ struct DownloadManagerTests {
         
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
-            if case .success(let data) = status {
-                #expect(!data.isEmpty)
+            switch status {
+            case .progress(let progress):
+                #expect(progress >= 0 && progress <= 1)
+            case .canceled:
                 break
-            } else if case .failed(let error) = status {
-                #expect(Bool(false), "Download failed: \(error)")
-                break
+            default:
+                throw error(status)
             }
         }
     }
@@ -101,14 +96,46 @@ struct DownloadManagerTests {
     @Test
     func failedDownload() async throws {
         let manager: DownloadManager = .default
-        let url = nonExistentFileURL
+        let url = fakeFileURL
         await manager.startDownload(from: url)
         
         let stream = try #require(await manager.stream(for: url))
         for await status in stream {
-            if case .failed(let error) = status {
-                #expect(Bool(true), "Download failed: \(error)")
+            switch status {
+            case .progress(let progress):
+                #expect(progress >= 0 && progress <= 1)
+            case .failed:
                 break
+            default:
+                throw error(status)
+            }
+        }
+    }
+    
+    @Test
+    func duplicateDownloads() async throws {
+        let manager: DownloadManager = .default
+        let url = try #require(testURLs.first)
+        
+        await manager.startDownload(from: url)
+        
+        Task {
+            try await Task.sleep(nanoseconds: 500_000_000)
+            await manager.startDownload(from: url)
+        }
+        
+        var lastProgress = 0.0
+        let stream = try #require(await manager.stream(for: url))
+        for await status in stream {
+            switch status {
+            case .progress(let progress):
+                #expect(progress >= 0 && progress <= 1)
+                #expect(progress >= lastProgress)
+                lastProgress = progress
+            case .success(let data):
+                #expect(!data.isEmpty)
+            default:
+                throw error(status)
             }
         }
     }
