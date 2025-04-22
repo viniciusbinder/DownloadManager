@@ -14,7 +14,7 @@ public enum DownloadStatus: Sendable {
     case failed(Error?)
     case canceled
 
-    var isFinished: Bool {
+    public var isFinished: Bool {
         switch self {
         case .success, .failed, .canceled:
             true

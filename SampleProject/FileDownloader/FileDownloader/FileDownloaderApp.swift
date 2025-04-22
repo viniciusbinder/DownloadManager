@@ -11,7 +11,7 @@ import SwiftUI
 struct FileDownloaderApp: App {
     var body: some Scene {
         WindowGroup {
-            DownloadsView()
+            DownloadsView(viewModel: .init(urls: Sample.urls))
         }
     }
 }
