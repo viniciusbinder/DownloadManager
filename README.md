@@ -1,6 +1,6 @@
 ## Exploring Swift Concurrency: DownloadManager
 
-This project is an exercise in learning to make use of **Swift Concurrency** features to solve **race condition problems**. Since Swift's `actor` serializes all access (reading and writing), half-updated or conflicting data will never be served.
+A project to make use of **Swift Concurrency** features to solve **race condition problems**. Since Swift's `actor` serializes all access (reading and writing), half-updated or conflicting data will never be served.
 
 **DownloadManager** was designed as an `actor` to safely manage multiple file downloads in parallel. It allows for download cancelation and real-time progress tracking, and safely handles duplicate download attempts. Use cases range from a browser-like download screen to a media app that downloads content on demand.
 
