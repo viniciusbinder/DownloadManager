@@ -17,4 +17,7 @@ A project to make use of **Swift Concurrency** features to solve **race conditio
 
 I've written and attached a single-screen `/SampleProject` that implements a concurrent user downloads list using the DownloadManager. The user can start, track progress, cancel, delete and restart a download, can also view each PDF file in the app with the `PDFKit` implementation included.
 
+> [!IMPORTANT]  
+> If you're downloading this repo as ZIP, make sure to rename the folder from `DownloadManager-<BRANCH_NAME>` to just `DownloadManager`, or else the sample project won't be able to find the local package.
+
 <img src="SampleProject/SampleProjectScreenshot.png" alt="Alt text" style="width:100%;">
